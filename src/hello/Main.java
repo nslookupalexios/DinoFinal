@@ -14,15 +14,11 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -31,12 +27,6 @@ import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 
-/**
- * This is the Main Class of your Game. You should only do initialization here.
- * Move your Logic into AppStates or Controls
- *
- * @author normenhansen
- */
 public class Main extends SimpleApplication {
 
     private BulletAppState bulletAppState;
@@ -83,13 +73,6 @@ public class Main extends SimpleApplication {
 
     }
 
-    private Geometry createBox(float size, ColorRGBA color) {
-        Box b = new Box(size, size, size);
-        Geometry geom = new Geometry("Box", b);
-        geom.setMaterial(createMaterial(color));
-        return geom;
-    }
-
     private Geometry createSphere(float radius, ColorRGBA color) {
         Sphere s = new Sphere(16, 32, radius);
         s.setTextureMode(Sphere.TextureMode.Polar);
@@ -106,20 +89,6 @@ public class Main extends SimpleApplication {
         //mat.setFloat("Shininess", 100f);
         mat.setBoolean("UseMaterialColors", true);
         return mat;
-    }
-
-    private Geometry createFloor() {
-        Quad q = new Quad(100f, 100f);
-        q.scaleTextureCoordinates(new Vector2f(100f, 100f));
-        Geometry geom = new Geometry("Floor", q);
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Texture tex = assetManager.loadTexture("Textures/tiles.png");
-        tex.setWrap(Texture.WrapMode.Repeat);
-        mat.setTexture("DiffuseMap", tex);
-        geom.setMaterial(mat);
-        geom.rotate(-FastMath.PI * 0.5f, 0f, 0f);
-        geom.move(-50f, 0f, 50f);
-        return geom;
     }
 
     private Spatial createTerrain() {
@@ -191,8 +160,6 @@ public class Main extends SimpleApplication {
         RigidBodyControl rbc = new RigidBodyControl(collisionShape, 1000.0f);
         dino.addControl(rbc);
         bulletAppState.getPhysicsSpace().add(rbc);
-
-        System.out.println("Old friction:" + rbc.getFriction());
         rbc.setFriction(2.0f);
         rbc.setAngularDamping(0.5f);
 
@@ -206,8 +173,6 @@ public class Main extends SimpleApplication {
         bulletAppState.getPhysicsSpace().addCollisionListener(dc);
         dino.addControl(dc);
 
-        //Control hc=new TerrainHeightControl(rootNode, 0.6f);
-        //dino.addControl(hc);
         return dino;
     }
 
@@ -219,9 +184,6 @@ public class Main extends SimpleApplication {
 
         MeteorControl mc = new MeteorControl(rootNode);
         sphere.addControl(mc);
-
-        //TerrainHeightControl hc=new TerrainHeightControl(rootNode, 0.3f);
-        //sphere.addControl(hc);
         CollisionShape collisionShape
                 = CollisionShapeFactory.createDynamicMeshShape(sphere);
         RigidBodyControl rbc = new RigidBodyControl(collisionShape, 1000.0f);
@@ -265,6 +227,8 @@ public class Main extends SimpleApplication {
                 new KeyTrigger(KeyInput.KEY_DOWN),
                 new MouseAxisTrigger(MouseInput.AXIS_Y, false)
         );
+        
+        inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 
     }
 

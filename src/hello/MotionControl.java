@@ -19,6 +19,7 @@ public class MotionControl extends AbstractControl implements ActionListener {
     private static final float VELOCITY = 8.0f;
     private static final float ANIM_SPEED_RATIO = 0.4f;
     private static final float ANGLE_CORRECTION_FACTOR = 1.0f;
+    private static final Vector3f jumpForce = new Vector3f(0, 10000f, 0);
 
     private final Vector3f s = new Vector3f();
     private final Vector3f w = new Vector3f();
@@ -26,9 +27,9 @@ public class MotionControl extends AbstractControl implements ActionListener {
     private final Quaternion quaternion = new Quaternion();
     private final float[] angles = new float[3];
 
-    private AnimComposer animComposer;
+    private final AnimComposer animComposer;
     private boolean moveForward = false, moveBackward = false,
-            rotateLeft = false, rotateRight = false;
+            rotateLeft = false, rotateRight = false, jump = false;
     private String currentAction = null;
 
     public MotionControl(InputManager inputManager, RigidBodyControl rbc) {
@@ -37,7 +38,7 @@ public class MotionControl extends AbstractControl implements ActionListener {
 
         inputManager.addListener(this, "Forward",
                 "Backward",
-                "RotateLeft", "RotateRight");
+                "RotateLeft", "RotateRight", "Jump");
     }
 
     @Override
@@ -58,7 +59,17 @@ public class MotionControl extends AbstractControl implements ActionListener {
             rotate(-1.0f);
         }
 
+        if (jump) {
+            jumpAction();
+        }
+
         straightenUp();
+    }
+
+    private void jumpAction() {
+        System.out.println("JUMPED");
+        this.rbc.applyImpulse(jumpForce, Vector3f.ZERO);
+        this.jump = false;
     }
 
     private void forward(float value) {
@@ -114,6 +125,8 @@ public class MotionControl extends AbstractControl implements ActionListener {
             rotateLeft = active;
         } else if (input.equals("RotateRight")) {
             rotateRight = active;
+        } else if (input.equals("Jump")) {
+            jump = active;
         }
     }
 
